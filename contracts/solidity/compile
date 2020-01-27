@@ -1,0 +1,8 @@
+## Sample smart contract compile scripy
+
+#!/bin/bash
+rm -rf ../build
+solc Investment.sol --bin --abi --optimize -o ../build
+cd ../build
+web3j solidity generate ./crowndfunding.bin ./crowndfunding.abi -p fr.insa.ot4.blockchain.dinopark -o ../../src/main/java/
+
