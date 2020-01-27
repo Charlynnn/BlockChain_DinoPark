@@ -22,7 +22,7 @@ public class DinoParkDeployer
         // Password of the source account
         private final String SOURCE_ACCOUNT_PASSWORD = "";
 
-        public Crowndfunding transferContract () throws Exception {
+        public Crowdfunding transferContract () throws Exception {
             // Connect to local node
             Web3j web3 = Web3j.build(new HttpService());  // defaults to http://localhost:8545/
 
@@ -30,7 +30,7 @@ public class DinoParkDeployer
             Credentials credentials = WalletUtils.loadCredentials(SOURCE_ACCOUNT_PASSWORD, LOCATION_SOURCE_ACCOUNT);
 
             // Deploy the contract in the blockchain
-            return Crowndfunding.deploy(web3, credentials, DefaultGasProvider.GAS_PRICE, DefaultGasProvider.GAS_LIMIT).send();
+            return Crowdfunding.deploy(web3, credentials, DefaultGasProvider.GAS_PRICE, DefaultGasProvider.GAS_LIMIT).send();
         }
     }
 
