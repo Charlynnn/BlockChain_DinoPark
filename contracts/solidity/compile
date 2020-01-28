@@ -2,7 +2,7 @@
 
 #!/bin/bash
 rm -rf ../build
-solc Investment.sol --bin --abi --optimize -o ../build
+solc Crowdfunding.sol --bin --abi --optimize -o ../build
 cd ../build
-web3j solidity generate ./investment.bin ./investment.abi -p fr.insa.ot4.blockchain.dinopark -o ../../src/main/java/
+web3j solidity generate ./crowdfunding.bin ./crowdfunding.abi -p fr.insa.ot4.blockchain.dinopark -o ../../src/main/java/
 

@@ -27,5 +27,4 @@ contract crowdfunding is mortal {
 
         return true;
     }
-
 }

@@ -16,7 +16,7 @@ public class Launcher {
         System.out.println("Trying to deposit a smart contract in the blockchain using java and web3j...");
 
         DinoParkDeployer deployer = new DinoParkDeployer();
-        Crowndfunding crowndfunding = deployer.transferContract();
+        Crowdfunding crowndfunding = deployer.transferContract();
 
         System.out.println("Contract transmitted to blockchain -> Crowndfunding is alive and ready for interaction.");
 
