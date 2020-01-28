@@ -26,12 +26,16 @@ contract crowdfunding is mortal {
 
 
     Investor[] investors;
-    Tier[] tiers = [Tier(1, 10, 105), Tier(11, 25, 110), Tier(1, 10, 120)];
+    //Tier[] tiers;
     mapping (address => uint) public balances;
 
     event EthReceived(address from, uint256 amount);
     event GoalReached(uint256 total_money_received);
     event ExpiredDate();
+
+    constructor() public {
+        //tiers = [Tier(1, 10, 105), Tier(11, 25, 110), Tier(1, 10, 120)];
+    }
 
     function invest()  public payable {
         require(
