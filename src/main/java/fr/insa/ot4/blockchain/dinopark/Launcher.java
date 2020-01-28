@@ -24,5 +24,12 @@ public class Launcher {
         Scanner scanner = new Scanner(System.in);
         System.out.println("[Enter an investment to Crowndfunding]");
         scanner.nextLine();
+
+        // Crowdfunding.ExpiredDate().watch({}, '', function(error, result) {
+        //     if (!error) {
+        //         console.log("oki ".");
+        //         console.log("");
+        //     }   
+        // })
     }
 }
