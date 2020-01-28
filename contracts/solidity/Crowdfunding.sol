@@ -1,7 +1,5 @@
 pragma solidity ^0.6.1;
 
-
-
 contract mortal {
     address payable owner;
     constructor() public { owner = msg.sender; }
@@ -14,21 +12,26 @@ contract crowdfunding is mortal {
         uint256 investment;
     }
 
+    struct Client {
+        address payable id;
+        uint256 money;
+    }
+
     struct Tier {
         int lower_bound;
         int upper_bound;
         int interest_rate;
     }
 
-    uint public crowdfunding_expiry;
+    uint public crowdfunding_expiry = 10000;
     uint256 constant investment_goal = 1000;
     uint256 current_investment = 0;
 
 
     Investor[] investors;
+    Client[] clients;
     //Tier[] tiers;
     mapping (address => uint) public balances;
-
     event EthReceived(address payable from, uint256 amount);
     event GoalReached(uint256 total_money_received);
     event ExpiredDate();
@@ -38,10 +41,11 @@ contract crowdfunding is mortal {
     }
 
     function invest()  public payable {
-        require(
+        //TODO implement time limite
+        /***require(
             now <= crowdfunding_expiry,
             "Crowdfunding already ended."
-        );
+        );***/
         require(
             current_investment < investment_goal,
             "Goal already reached."
@@ -61,7 +65,7 @@ contract crowdfunding is mortal {
     }
 
     function endCrowfundingSuccess() public {
-        require(now > crowdfunding_expiry);
+        //require(now > crowdfunding_expiry);
         require(current_investment >  investment_goal);
 
         owner.transfer(current_investment);
@@ -69,9 +73,9 @@ contract crowdfunding is mortal {
 
     function withdraw() public returns (bool) {
         require(now > crowdfunding_expiry,
-                "Crowdfunding still going on.");
+            "Crowdfunding still going on.");
         require(current_investment < investment_goal,
-                "Crowdfunding goal reached. Withdrawing is impossible.");
+            "Crowdfunding goal reached. Withdrawing is impossible.");
         uint256 amount = balances[msg.sender];
         if (amount > 0) {
             // It is important to set this to zero because the recipient
@@ -86,6 +90,24 @@ contract crowdfunding is mortal {
             }
         }
         return true;
+    }
+
+    function buyTicket()  public payable {
+        //TODO implement time limite
+        /***require(
+            now <= crowdfunding_expiry,
+            "Crowdfunding already ended."
+        );***/
+
+        address payable client_address = msg.sender;
+        uint256 eth_ticket = msg.value;
+
+        current_investment += eth_ticket;
+        Client memory client = Client(client_address, eth_ticket);
+        clients.push(client);
+
+        if(current_investment >= investment_goal)
+            emit GoalReached(current_investment);
     }
 }
 
