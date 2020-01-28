@@ -56,6 +56,13 @@ contract crowdfunding is mortal {
             emit GoalReached(current_investment);
     }
 
+    function endCrowfundingSuccess(){
+        require(now > crowdfunding_expiry);
+        require(current_investment >  investment_goal);
+
+        owner.send(current_investment);
+    }
+
     function withdraw() public returns (bool) {
         require(now > crowdfunding_expiry
                 && current_investment < investment_goal,
