@@ -3,15 +3,15 @@ pragma solidity ^0.6.1;
 
 
 contract mortal {
-    address owner;
+    address payable owner;
     constructor() public { owner = msg.sender; }
 }
 
 contract crowdfunding is mortal {
 
     struct Investor {
-    address id;
-    uint256 investment;
+        address payable id;
+        uint256 investment;
     }
 
     struct Tier {
@@ -29,7 +29,7 @@ contract crowdfunding is mortal {
     //Tier[] tiers;
     mapping (address => uint) public balances;
 
-    event EthReceived(address from, uint256 amount);
+    event EthReceived(address payable from, uint256 amount);
     event GoalReached(uint256 total_money_received);
     event ExpiredDate();
 
@@ -47,7 +47,7 @@ contract crowdfunding is mortal {
             "Goal already reached."
         );
         // check overflow of the balances
-        address investor_address = msg.sender;
+        address payable investor_address = msg.sender;
         uint256 eth_received = msg.value;
 
         current_investment += eth_received;
@@ -60,11 +60,11 @@ contract crowdfunding is mortal {
             emit GoalReached(current_investment);
     }
 
-    function endCrowfundingSuccess(){
+    function endCrowfundingSuccess() public {
         require(now > crowdfunding_expiry);
         require(current_investment >  investment_goal);
 
-        owner.send(current_investment);
+        owner.transfer(current_investment);
     }
 
     function withdraw() public returns (bool) {
