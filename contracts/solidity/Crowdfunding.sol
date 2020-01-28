@@ -64,10 +64,10 @@ contract crowdfunding is mortal {
     }
 
     function withdraw() public returns (bool) {
-        require(now > crowdfunding_expiry
-                && current_investment < investment_goal,
+        require(now > crowdfunding_expiry,
                 "Crowdfunding still going on.");
-
+        require(current_investment < investment_goal,
+                "Crowdfunding goal reached. Withdrawing is impossible.");
         uint256 amount = balances[msg.sender];
         if (amount > 0) {
             // It is important to set this to zero because the recipient
