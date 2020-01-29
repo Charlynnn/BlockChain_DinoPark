@@ -25,7 +25,7 @@ contract crowdfunding is mortal {
 
     uint public crowdfunding_expiry = 10000;
     uint crowdfunding_duration = 5 weeks; //can be changed to whatever for testing purposes (units : seconds, minutes, hours....)
-    uint256 constant investment_goal = 1000;
+    uint256 constant investment_goal = 1000; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
     uint256 current_investment = 0;
 
 
