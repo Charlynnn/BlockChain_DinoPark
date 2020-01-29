@@ -154,20 +154,35 @@ contract crowdfunding is mortal {
             emit abortFunding(current_investment);
     }
     
-    function claimPayBackWithInterests() public {
+    function claimPayBackWithInterests() public returns (bool) {
+        
         require(now > crowdfunding_expiry,
                "Crowdfunding still going on.");
-        require(earnings > earnings_goal2,
+        require(current_earnings > earnings_goal2,
                 "We have not earned enough money to pay back yet.");
+                
         address payable investor_address = msg.sender;
         //uint256 eth_received = msg.value;
         uint256 money_invested = balances[investor_address];
-        for (uint i=0; i<3; i++) {
+        uint256 interest_rate = 0;
+        uint256 money_to_payback = 0;
+        for (uint i=0; i<(tiers.length - 1); i++) {
             if(money_invested > tiers[i].lower_bound && money_invested <= tiers[i].upper_bound){
-                uint256 pb = money_invested*tiers[i].interest_rate;
+                 interest_rate = tiers[i].interest_rate;
             }
-                
         }
+        if(money_invested > tiers[tiers.length - 1].lower_bound)
+            interest_rate = tiers[tiers.length - 1].interest_rate;
+        
+        if(interest_rate != 0){
+            
+            money_to_payback = money_invested * interest_rate;
+            money_to_payback = money_to_payback/100;
+            if(investor_address.send(money_to_payback)) return true;
+            
+        }
+        else 
+            return false;
     }
 }
 
