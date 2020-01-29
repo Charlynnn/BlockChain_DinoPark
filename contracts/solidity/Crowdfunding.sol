@@ -47,9 +47,9 @@ contract crowdfunding is mortal {
     event abortFunding(uint256 amount);
 
     constructor() public {
-        tiers.push(Tier(1, 10, 105));
-        tiers.push(Tier(11, 25, 110));
-        tiers.push(Tier(26, 1000000, 120)); //only use the lower bound for the top tier
+        tiers.push(Tier(0, 10, 105));
+        tiers.push(Tier(10, 25, 110));
+        tiers.push(Tier(25, 1000000, 120));  //only use the lower bound for the top tier
 
         crowdfunding_expiry = now + crowdfunding_duration;
     }
