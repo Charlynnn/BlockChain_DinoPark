@@ -23,10 +23,11 @@ contract crowdfunding is mortal {
         int interest_rate;
     }
 
-    uint public crowdfunding_expiry = 10000;
+    uint public crowdfunding_expiry;
     uint crowdfunding_duration = 5 weeks; //can be changed to whatever for testing purposes (units : seconds, minutes, hours....)
-    uint256 constant investment_goal = 1000; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
+    uint256 constant investment_goal = 10 ether; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
     uint256 current_investment = 0;
+    uint256 ticket_price = 1 ether;
 
 
     Investor[] investors;
@@ -42,7 +43,7 @@ contract crowdfunding is mortal {
         tiers.push(Tier(1, 10, 105));
         tiers.push(Tier(11, 25, 110));
         tiers.push(Tier(26, 1000000, 120)); //only use the lower bound for the top tier
-         
+
         crowdfunding_expiry = now + crowdfunding_duration;
     }
 
@@ -98,7 +99,7 @@ contract crowdfunding is mortal {
         return true;
     }
 
-    function buyTicket()  public payable {
+    function buyTicket(uint ticket)  public payable {
         require(
             current_investment >= investment_goal,
             "The project is not completely crowdfunding yet, please wait before buying ticket"
@@ -108,8 +109,8 @@ contract crowdfunding is mortal {
         uint256 eth_ticket = msg.value;
 
         require(
-            eth_ticket == 10,
-            "You have to pay 10 wei for your ticket");
+            eth_ticket == ticket*ticket_price,
+            "Error : You must send the correct price, you have to pay 1 ether by ticket");
 
         current_investment += eth_ticket;
         Client memory client = Client(client_address, eth_ticket);
