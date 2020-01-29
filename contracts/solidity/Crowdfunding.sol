@@ -48,10 +48,10 @@ contract crowdfunding is mortal {
 
     function invest()  public payable {
         //TODO implement time limite
-        /***require(
+        require(
             now <= crowdfunding_expiry,
             "Crowdfunding already ended."
-        );***/
+        );
         require(
             current_investment < investment_goal,
             "Goal already reached."
@@ -99,14 +99,9 @@ contract crowdfunding is mortal {
     }
 
     function buyTicket()  public payable {
-        //TODO implement time limite
-        /***require(
-            now <= crowdfunding_expiry,
-            "Crowdfunding already ended."
-        );***/
         require(
             current_investment >= investment_goal,
-            "The project is not completly invest yet, please wait before buying ticket"
+            "The project is not completely crowdfunding yet, please wait before buying ticket"
         );
 
         address payable client_address = msg.sender;
