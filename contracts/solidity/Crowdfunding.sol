@@ -25,10 +25,8 @@ contract crowdfunding is mortal {
 
     uint public crowdfunding_expiry;
     uint crowdfunding_duration = 1 minutes; //can be changed to whatever for testing purposes (units : seconds, minutes, hours....)
-
     uint256 constant investment_goal = 10 ether; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
     uint256 current_investment = 0;
-    uint256 ticket_price = 1 ether;
 
 
     Investor[] investors;
@@ -37,6 +35,7 @@ contract crowdfunding is mortal {
     mapping (address => uint) public balances;
     event EthReceived(address payable from, uint256 amount);
     event BuyTicket(address payable from, uint256 price);
+    event ProjectFunded(uint256 total_money_received);
     event GoalReached(uint256 total_money_received);
     event ExpiredDate();
 
@@ -71,7 +70,7 @@ contract crowdfunding is mortal {
             emit GoalReached(current_investment);
     }
 
-    function endCrowfundingSuccess() public {
+    function commitFunding() public {
         /*Test :
         Fails on goal not reached : OK
         Fails on expiry date not reached : OK
@@ -86,7 +85,8 @@ contract crowdfunding is mortal {
             current_investment >=  investment_goal,
             "Investment goal was not reached, money cannot be withdrawed"
         );
-        owner.transfer(current_investment);
+        owner.send(current_investment);
+        emit ProjectFunded(current_investment);
     }
 
     function withdraw() public returns (bool) {
@@ -117,15 +117,15 @@ contract crowdfunding is mortal {
         );
         require(
             current_investment >= investment_goal,
-            "The project is not completely crowdfunding yet, please wait before buying ticket"
+            "The project is not completly invest yet, please wait before buying ticket"
         );
 
         address payable client_address = msg.sender;
         uint256 eth_ticket = msg.value;
 
         require(
-            eth_ticket == ticket*ticket_price,
-            "Error : You must send the correct price, you have to pay 1 ether by ticket");
+            eth_ticket == 10,
+            "You have to pay 10 wei for your ticket");
 
         current_investment += eth_ticket;
         Client memory client = Client(client_address, eth_ticket);
