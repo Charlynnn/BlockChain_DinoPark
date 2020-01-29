@@ -33,11 +33,13 @@ contract crowdfunding is mortal {
     Client[] clients;
     Tier[] tiers;
     mapping (address => uint) public balances;
+    
     event EthReceived(address payable from, uint256 amount);
     event BuyTicket(address payable from, uint256 price);
     event ProjectFunded(uint256 total_money_received);
     event GoalReached(uint256 total_money_received);
     event ExpiredDate();
+    event abortFunding(uint256 amount);
 
     constructor() public {
         tiers.push(Tier(1, 10, 105));
@@ -134,6 +136,15 @@ contract crowdfunding is mortal {
         emit BuyTicket(client_address, eth_ticket);
         if(current_investment >= investment_goal)
             emit GoalReached(current_investment);
+    }
+    
+    function closeFunding() public{
+        require(now > crowdfunding_expiry,
+                "Crowdfunding still going on.");
+        if(current_investment >=  investment_goal)
+            commitFunding();
+        else
+            emit abortFunding(current_investment);
     }
 }
 
