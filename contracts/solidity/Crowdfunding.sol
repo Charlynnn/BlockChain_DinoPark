@@ -25,8 +25,10 @@ contract crowdfunding is mortal {
 
     uint public crowdfunding_expiry;
     uint crowdfunding_duration = 1 minutes; //can be changed to whatever for testing purposes (units : seconds, minutes, hours....)
+
     uint256 constant investment_goal = 10 ether; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
     uint256 current_investment = 0;
+    uint256 ticket_price = 1 ether;
 
 
     Investor[] investors;
@@ -115,15 +117,15 @@ contract crowdfunding is mortal {
         );
         require(
             current_investment >= investment_goal,
-            "The project is not completly invest yet, please wait before buying ticket"
+            "The project is not completely crowdfunding yet, please wait before buying ticket"
         );
 
         address payable client_address = msg.sender;
         uint256 eth_ticket = msg.value;
 
         require(
-            eth_ticket == 10,
-            "You have to pay 10 wei for your ticket");
+            eth_ticket == ticket*ticket_price,
+            "Error : You must send the correct price, you have to pay 1 ether by ticket");
 
         current_investment += eth_ticket;
         Client memory client = Client(client_address, eth_ticket);
