@@ -24,6 +24,7 @@ contract crowdfunding is mortal {
     }
 
     uint public crowdfunding_expiry = 10000;
+    uint crowdfunding_duration = 5 weeks; //can be changed to whatever for testing purposes (units : seconds, minutes, hours....)
     uint256 constant investment_goal = 1000;
     uint256 current_investment = 0;
 
@@ -41,6 +42,8 @@ contract crowdfunding is mortal {
         tiers.push(Tier(1, 10, 105));
         tiers.push(Tier(11, 25, 110));
         tiers.push(Tier(26, 1000000, 120)); //only use the lower bound for the top tier
+         
+        crowdfunding_expiry = now + crowdfunding_duration;
     }
 
     function invest()  public payable {
