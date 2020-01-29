@@ -6,12 +6,7 @@ contract mortal {
 }
 
 contract crowdfunding is mortal {
-
-    struct Investor {
-        address payable id;
-        uint256 investment;
-    }
-
+    
     struct Client {
         address payable id;
         uint256 money;
@@ -28,8 +23,7 @@ contract crowdfunding is mortal {
     uint256 constant investment_goal = 10 ether; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
     uint256 current_investment = 0;
 
-
-    Investor[] investors;
+    address payable[] investors;
     Client[] clients;
     Tier[] tiers;
     mapping (address => uint) public balances;
@@ -63,8 +57,7 @@ contract crowdfunding is mortal {
         uint256 eth_received = msg.value;
 
         current_investment += eth_received;
-        Investor memory investor = Investor(investor_address, eth_received);
-        investors.push(investor);
+        investors.push(investor_address);
         balances[msg.sender] += eth_received;
 
         emit EthReceived(investor_address, current_investment);
