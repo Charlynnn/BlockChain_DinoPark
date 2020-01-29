@@ -53,6 +53,10 @@ contract miniCrowdfunding is mortal{
             current_investment < investment_goal,
             "Goal already reached."
         );
+        require(
+            msg.value > 0,
+            "you must invest more than 0 !"
+        );
         // check overflow of the balances
         address payable investor_address = msg.sender;
         uint256 eth_received = msg.value;
