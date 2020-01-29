@@ -7,11 +7,6 @@ contract mortal {
 
 contract crowdfunding is mortal {
 
-    struct Investor {
-        address payable id;
-        uint256 investment;
-    }
-
     struct Client {
         address payable id;
         uint256 money;
@@ -29,23 +24,24 @@ contract crowdfunding is mortal {
     }
 
     uint public crowdfunding_expiry;
-    uint crowdfunding_duration = 5 weeks; //can be changed to whatever for testing purposes (units : seconds, minutes, hours....)
+    uint crowdfunding_duration = 1 minutes; //can be changed to whatever for testing purposes (units : seconds, minutes, hours....)
     uint256 constant investment_goal = 10 ether; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
     uint256 current_investment = 0;
     uint256 ticket_price = 1 ether;
     uint256 current_earning = 0;
     uint256 earning_goal;
 
-
-    Investor[] investors;
+    address payable[] investors;
     Client[] clients;
     Tier[] tiers;
     mapping (address => uint) public balances;
     mapping (address => Ticket) tickets;
     event EthReceived(address payable from, uint256 amount);
     event BuyTicket(address payable from, uint256 price);
+    event ProjectFunded(uint256 total_money_received);
     event GoalReached(uint256 total_money_received);
     event ExpiredDate();
+    event abortFunding(uint256 amount);
 
     constructor() public {
         tiers.push(Tier(1, 10, 105));
@@ -69,8 +65,7 @@ contract crowdfunding is mortal {
         uint256 eth_received = msg.value;
 
         current_investment += eth_received;
-        Investor memory investor = Investor(investor_address, eth_received);
-        investors.push(investor);
+        investors.push(investor_address);
         balances[msg.sender] += eth_received;
 
         emit EthReceived(investor_address, current_investment);
@@ -78,11 +73,23 @@ contract crowdfunding is mortal {
             emit GoalReached(current_investment);
     }
 
-    function endCrowfundingSuccess() public {
-        //require(now > crowdfunding_expiry);
-        require(current_investment >  investment_goal);
-
-        owner.transfer(current_investment);
+    function commitFunding() public {
+        /*Test :
+        Fails on goal not reached : OK
+        Fails on expiry date not reached : OK
+        Send correct amount of money : OK
+        Always send to owner : OK
+        */
+        require(
+            now > crowdfunding_expiry,
+            "Crowdfunding hasn't ended yet"
+        );
+        require(
+            current_investment >=  investment_goal,
+            "Investment goal was not reached, money cannot be withdrawed"
+        );
+        owner.send(current_investment);
+        emit ProjectFunded(current_investment);
     }
 
     function withdraw() public returns (bool) {
@@ -130,6 +137,15 @@ contract crowdfunding is mortal {
         //return true;
 
         emit BuyTicket(client_address, eth_ticket);
+    }
+
+    function closeFunding() public{
+        require(now > crowdfunding_expiry,
+                "Crowdfunding still going on.");
+        if(current_investment >=  investment_goal)
+            commitFunding();
+        else
+            emit abortFunding(current_investment);
     }
 }
 
