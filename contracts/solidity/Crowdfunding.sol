@@ -18,9 +18,9 @@ contract crowdfunding is mortal {
     }
 
     struct Tier {
-        int lower_bound;
-        int upper_bound;
-        int interest_rate;
+        uint256 lower_bound;
+        uint256 upper_bound;
+        uint256 interest_rate;
     }
 
     uint public crowdfunding_expiry;
@@ -28,14 +28,17 @@ contract crowdfunding is mortal {
     uint256 constant investment_goal = 10 ether; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
     uint256 current_investment = 0;
     uint256 ticket_price = 1 ether;
-    uint256 current_earning = 0;
-    uint256 earning_goal;
+    uint256 current_earnings = 0;
+    uint256 earnings_goal1;
+    uint256 earnings_goal2 = 10;
 
     address payable[] investors;
     Client[] clients;
     Tier[] tiers;
+    
     mapping (address => uint) public balances;
     mapping (address => Ticket) tickets;
+    
     event EthReceived(address payable from, uint256 amount);
     event BuyTicket(address payable from, uint256 price);
     event ProjectFunded(uint256 total_money_received);
@@ -126,7 +129,7 @@ contract crowdfunding is mortal {
             eth_ticket == number_ticket*ticket_price,
             "Error : You must send the correct price, you have to pay 1 ether by ticket");
 
-        current_earning += eth_ticket;
+        current_earnings += eth_ticket;
         Client memory client = Client(client_address, eth_ticket);
         clients.push(client);
 
@@ -146,6 +149,22 @@ contract crowdfunding is mortal {
             commitFunding();
         else
             emit abortFunding(current_investment);
+    }
+    
+    function claimPayBackWithInterests() public {
+        require(now > crowdfunding_expiry,
+               "Crowdfunding still going on.");
+        require(earnings > earnings_goal2,
+                "We have not earned enough money to pay back yet.");
+        address payable investor_address = msg.sender;
+        //uint256 eth_received = msg.value;
+        uint256 money_invested = balances[investor_address];
+        for (uint i=0; i<3; i++) {
+            if(money_invested > tiers[i].lower_bound && money_invested <= tiers[i].upper_bound){
+                uint256 pb = money_invested*tiers[i].interest_rate;
+            }
+                
+        }
     }
 }
 
