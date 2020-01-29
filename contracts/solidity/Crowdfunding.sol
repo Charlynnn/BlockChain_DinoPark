@@ -33,6 +33,7 @@ contract crowdfunding is mortal {
     //Tier[] tiers;
     mapping (address => uint) public balances;
     event EthReceived(address payable from, uint256 amount);
+    event BuyTicket(address payable from, uint256 price);
     event GoalReached(uint256 total_money_received);
     event ExpiredDate();
 
@@ -98,14 +99,23 @@ contract crowdfunding is mortal {
             now <= crowdfunding_expiry,
             "Crowdfunding already ended."
         );***/
+        require(
+            current_investment >= investment_goal,
+            "The project is not completly invest yet, please wait before buying ticket"
+        );
 
         address payable client_address = msg.sender;
         uint256 eth_ticket = msg.value;
+
+        require(
+            eth_ticket == 10,
+            "You have to pay 10 wei for your ticket");
 
         current_investment += eth_ticket;
         Client memory client = Client(client_address, eth_ticket);
         clients.push(client);
 
+        emit BuyTicket(client_address, eth_ticket);
         if(current_investment >= investment_goal)
             emit GoalReached(current_investment);
     }
