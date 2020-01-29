@@ -17,6 +17,11 @@ contract crowdfunding is mortal {
         uint256 money;
     }
 
+    struct Ticket {
+        uint256 price;
+        string token;
+    }
+
     struct Tier {
         int lower_bound;
         int upper_bound;
@@ -28,12 +33,15 @@ contract crowdfunding is mortal {
     uint256 constant investment_goal = 10 ether; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
     uint256 current_investment = 0;
     uint256 ticket_price = 1 ether;
+    uint256 current_earning = 0;
+    uint256 earning_goal;
 
 
     Investor[] investors;
     Client[] clients;
     Tier[] tiers;
     mapping (address => uint) public balances;
+    mapping (address => Ticket) tickets;
     event EthReceived(address payable from, uint256 amount);
     event BuyTicket(address payable from, uint256 price);
     event GoalReached(uint256 total_money_received);
@@ -48,7 +56,6 @@ contract crowdfunding is mortal {
     }
 
     function invest()  public payable {
-        //TODO implement time limite
         require(
             now <= crowdfunding_expiry,
             "Crowdfunding already ended."
@@ -99,7 +106,7 @@ contract crowdfunding is mortal {
         return true;
     }
 
-    function buyTicket(uint ticket)  public payable {
+    function buyTicket(uint number_ticket)  public payable {
         require(
             current_investment >= investment_goal,
             "The project is not completely crowdfunding yet, please wait before buying ticket"
@@ -109,16 +116,20 @@ contract crowdfunding is mortal {
         uint256 eth_ticket = msg.value;
 
         require(
-            eth_ticket == ticket*ticket_price,
+            eth_ticket == number_ticket*ticket_price,
             "Error : You must send the correct price, you have to pay 1 ether by ticket");
 
-        current_investment += eth_ticket;
+        current_earning += eth_ticket;
         Client memory client = Client(client_address, eth_ticket);
         clients.push(client);
 
+        Ticket memory ticket = Ticket(eth_ticket, "testToken");
+        tickets[client_address] = ticket;
+
+        //if(!client_address.call(bytes4(bytes32(sha3("buyTicket(address,uint256,address,bytes)"))), client_address, _value, this, _extraData)) { throw; }
+        //return true;
+
         emit BuyTicket(client_address, eth_ticket);
-        if(current_investment >= investment_goal)
-            emit GoalReached(current_investment);
     }
 }
 
