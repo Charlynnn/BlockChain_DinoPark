@@ -30,7 +30,7 @@ contract crowdfunding is mortal {
 
     Investor[] investors;
     Client[] clients;
-    //Tier[] tiers;
+    Tier[] tiers;
     mapping (address => uint) public balances;
     event EthReceived(address payable from, uint256 amount);
     event BuyTicket(address payable from, uint256 price);
@@ -38,7 +38,9 @@ contract crowdfunding is mortal {
     event ExpiredDate();
 
     constructor() public {
-        //tiers = [Tier(1, 10, 105), Tier(11, 25, 110), Tier(1, 10, 120)];
+        tiers.push(Tier(1, 10, 105));
+        tiers.push(Tier(11, 25, 110));
+        tiers.push(Tier(26, 1000000, 120)); //only use the lower bound for the top tier
     }
 
     function invest()  public payable {
