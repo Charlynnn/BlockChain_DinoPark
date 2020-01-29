@@ -145,8 +145,11 @@ contract crowdfunding is mortal {
     function closeFunding() public{
         require(now > crowdfunding_expiry,
                 "Crowdfunding still going on.");
-        if(current_investment >=  investment_goal)
+        if(current_investment >=  investment_goal){
             commitFunding();
+            earnings_goal1 = current_investment*2;
+            earnings_goal2 = current_investment*3;
+            }
         else
             emit abortFunding(current_investment);
     }
