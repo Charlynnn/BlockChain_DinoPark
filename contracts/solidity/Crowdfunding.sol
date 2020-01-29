@@ -23,9 +23,9 @@ contract crowdfunding is mortal {
         int interest_rate;
     }
 
-    uint public crowdfunding_expiry = 10000;
-    uint crowdfunding_duration = 5 weeks; //can be changed to whatever for testing purposes (units : seconds, minutes, hours....)
-    uint256 constant investment_goal = 1000; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
+    uint public crowdfunding_expiry;
+    uint crowdfunding_duration = 1 minutes; //can be changed to whatever for testing purposes (units : seconds, minutes, hours....)
+    uint256 constant investment_goal = 10 ether; //this is wei. To get ether, type "1000 ether", same goes for wei, finney, szabo
     uint256 current_investment = 0;
 
 
@@ -42,16 +42,15 @@ contract crowdfunding is mortal {
         tiers.push(Tier(1, 10, 105));
         tiers.push(Tier(11, 25, 110));
         tiers.push(Tier(26, 1000000, 120)); //only use the lower bound for the top tier
-         
+
         crowdfunding_expiry = now + crowdfunding_duration;
     }
 
     function invest()  public payable {
-        //TODO implement time limite
-        /***require(
+        require(
             now <= crowdfunding_expiry,
             "Crowdfunding already ended."
-        );***/
+        );
         require(
             current_investment < investment_goal,
             "Goal already reached."
@@ -71,9 +70,20 @@ contract crowdfunding is mortal {
     }
 
     function endCrowfundingSuccess() public {
-        //require(now > crowdfunding_expiry);
-        require(current_investment >  investment_goal);
-
+        /*Test :
+        Fails on goal not reached : OK
+        Fails on expiry date not reached : OK
+        Send correct amount of money : OK
+        Always send to owner : OK
+        */
+        require(
+            now > crowdfunding_expiry,
+            "Crowdfunding hasn't ended yet"
+        );
+        require(
+            current_investment >=  investment_goal,
+            "Investment goal was not reached, money cannot be withdrawed"
+        );
         owner.transfer(current_investment);
     }
 
@@ -99,11 +109,10 @@ contract crowdfunding is mortal {
     }
 
     function buyTicket()  public payable {
-        //TODO implement time limite
-        /***require(
+        require(
             now <= crowdfunding_expiry,
             "Crowdfunding already ended."
-        );***/
+        );
         require(
             current_investment >= investment_goal,
             "The project is not completly invest yet, please wait before buying ticket"
