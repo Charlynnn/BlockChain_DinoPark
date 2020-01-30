@@ -7,16 +7,6 @@ contract mortal {
 
 contract crowdfunding is mortal {
 
-    struct Client {
-        address payable id;
-        uint256 money;
-    }
-
-    struct Ticket {
-        uint256 price;
-        string token;
-    }
-
     struct Tier {
         uint256 lower_bound;
         uint256 upper_bound;
@@ -31,9 +21,7 @@ contract crowdfunding is mortal {
     uint256 current_earnings = 0;
     uint256 earnings_goal1;
     uint256 earnings_goal2 = 10;
-
-    address payable[] investors;
-    Client[] clients;
+    
     Tier[] tiers;
     
     mapping (address => uint) public balances;
@@ -75,7 +63,6 @@ contract crowdfunding is mortal {
         uint256 eth_received = msg.value;
 
         current_investment += eth_received;
-        investors.push(investor_address);
         balances[msg.sender] += eth_received;
 
         emit EthReceived(investor_address, current_investment);
@@ -141,13 +128,10 @@ contract crowdfunding is mortal {
         address payable client_address = msg.sender;
         uint256 money_sent = msg.value;
 
-        require(
-            money_sent == number_ticket*ticket_price,
+        require(money_sent == number_ticket*ticket_price,
             "Error : You must send the correct price, you have to pay 1 ether by ticket");
 
         current_earnings += money_sent;
-        Client memory client = Client(client_address, money_sent);
-        clients.push(client);
         
         bytes32[] memory tickets_to_send = new bytes32[](number_ticket);
         for (uint i=0; i<number_ticket; i++) {
