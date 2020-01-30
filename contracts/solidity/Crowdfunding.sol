@@ -80,7 +80,7 @@ contract crowdfunding is mortal {
             emit GoalReached(current_investment);
     }
 
-    function commitFunding() public {
+    function commitFunding() public returns (bool){
         /*Test :
         Fails on goal not reached : OK
         Fails on expiry date not reached : OK
@@ -95,8 +95,10 @@ contract crowdfunding is mortal {
             current_investment >=  investment_goal,
             "Investment goal was not reached, money cannot be withdrawed"
         );
-        owner.transfer(current_investment);
-        emit ProjectFunded(current_investment);
+        if(owner.send(current_investment)){
+            emit ProjectFunded(current_investment);
+            return true ;
+        } else return false;
     }
 
     function withdraw() public returns (bool) {
@@ -150,11 +152,11 @@ contract crowdfunding is mortal {
         require(now > crowdfunding_expiry,
                 "Crowdfunding still going on.");
         if(current_investment >=  investment_goal){
-            commitFunding();
-            earnings_goal1 = current_investment*2;
-            earnings_goal2 = current_investment*3;
-            }
-        else
+            if(commitFunding()){
+                earnings_goal1 = current_investment*2;
+                earnings_goal2 = current_investment*3;
+            } else return;
+        } else
             emit abortFunding(current_investment);
         fundingClosed = true;
     }
