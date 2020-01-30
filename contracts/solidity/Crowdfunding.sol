@@ -131,23 +131,23 @@ contract crowdfunding is mortal {
         );
 
         address payable client_address = msg.sender;
-        uint256 eth_ticket = msg.value;
+        uint256 money_sent = msg.value;
 
         require(
-            eth_ticket == number_ticket*ticket_price,
+            money_sent == number_ticket*ticket_price,
             "Error : You must send the correct price, you have to pay 1 ether by ticket");
 
-        current_earnings += eth_ticket;
-        Client memory client = Client(client_address, eth_ticket);
+        current_earnings += money_sent;
+        Client memory client = Client(client_address, money_sent);
         clients.push(client);
 
-        Ticket memory ticket = Ticket(eth_ticket, "testToken");
+        Ticket memory ticket = Ticket(money_sent, "testToken");
         tickets[client_address] = ticket;
 
         //if(!client_address.call(bytes4(bytes32(sha3("buyTicket(address,uint256,address,bytes)"))), client_address, _value, this, _extraData)) { throw; }
         //return true;
 
-        emit BuyTicket(client_address, eth_ticket);
+        emit BuyTicket(client_address, money_sent);
     }
 
     function closeFunding() public{
