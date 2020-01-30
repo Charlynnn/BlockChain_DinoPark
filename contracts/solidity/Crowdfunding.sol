@@ -45,6 +45,8 @@ contract crowdfunding is mortal {
     event GoalReached(uint256 total_money_received);
     event ExpiredDate();
     event abortFunding(uint256 amount);
+    
+    bool fundingClosed = false;
 
     constructor() public {
         tiers.push(Tier(0, 10*investment_goal/100, 105));
