@@ -47,9 +47,9 @@ contract crowdfunding is mortal {
     event abortFunding(uint256 amount);
 
     constructor() public {
-        tiers.push(Tier(0, 10, 105));
-        tiers.push(Tier(10, 25, 110));
-        tiers.push(Tier(25, 1000000, 120));  //only use the lower bound for the top tier
+        tiers.push(Tier(0, 10*investment_goal/100, 105));
+        tiers.push(Tier(10*investment_goal/100, 25*investment_goal/100, 110));
+        tiers.push(Tier(25*investment_goal/100, 1000000, 120));  //only use the lower bound for the top tier
 
         crowdfunding_expiry = now + crowdfunding_duration;
     }
@@ -95,7 +95,7 @@ contract crowdfunding is mortal {
             current_investment >=  investment_goal,
             "Investment goal was not reached, money cannot be withdrawed"
         );
-        owner.send(current_investment);
+        owner.transfer(current_investment);
         emit ProjectFunded(current_investment);
     }
 
@@ -156,12 +156,15 @@ contract crowdfunding is mortal {
             }
         else
             emit abortFunding(current_investment);
+        fundingClosed = true;
     }
     
     function claimPayBackWithInterests() public returns (bool) {
         
         require(now > crowdfunding_expiry,
                "Crowdfunding still going on.");
+        require(fundingClosed,
+                "The park is now being built. Please wait for further announcements to try again.");
         require(current_earnings > earnings_goal2,
                 "We have not earned enough money to pay back yet.");
                 
