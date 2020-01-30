@@ -9,39 +9,54 @@ contract mortal {
 contract miniCrowdfunding is mortal{
 
     struct Tier {
-        int lower_bound;
+        uint256 lower_bound;
         uint256 upper_bound;
         uint256 interest_rate;
         string merch_reward;
     }
-
+    struct Merch {
+        string name;
+        string token;
+    }
 
     address[] grand_patrons;
     string public mini_crowdfunding_name;
     uint256 public investment_goal;
     uint256 public current_investment;
+    uint mini_crowdfunding_duration =  1 minutes;
     uint public mini_crowdfunding_expiry;
+    uint  pay_back_duration = 2 minutes;
+    uint public pay_back_date;
 
     mapping (address => uint) public balances;
+    Merch[] claimed_merch;
+
+    mapping(address => bool) has_claimed_merch;
+    mapping(address => bool) has_claimed_patron_merch;
 
     Tier[] public tiers;
     Tier public  patrons_tier = Tier(5, 1, 0, "super exclusive figure");
 
     //Events
 
-    event GoalReached(uint256 current_investment);
-    event ProjectFunded(uint256 investment);
-    event EthReceived(address investor_address, uint256 current_investment);
+    event EthReceived(address payable from, uint256 amount);
+    event ProjectFunded(uint256 total_money_received);
+    event GoalReached(uint256 total_money_received);
+    event ExpiredDate();
+    event abortFunding(uint256 amount);
+    event merchClaimed(address investor_address, bytes32 merch_token);
 
 
-    constructor(address[] memory patrons, string memory name, uint expiry, uint256 goal) public{
+    constructor(address[] memory patrons, string memory name, uint256 goal) public{
         grand_patrons = patrons;
         mini_crowdfunding_name = name;
         investment_goal = goal;
-        mini_crowdfunding_expiry = now + expiry;
         tiers.push(Tier(1, 10, 105,"no merch"));
         tiers.push(Tier(11, 25, 110,"no merch"));
         tiers.push(Tier(26, 1000000, 120, "exclusive keychain"));
+
+        pay_back_date = now + pay_back_duration;
+        mini_crowdfunding_expiry = now + mini_crowdfunding_duration;
     }
 
     function invest()  public payable {
@@ -69,7 +84,7 @@ contract miniCrowdfunding is mortal{
             emit GoalReached(current_investment);
     }
 
-    function commitFunding() public {
+    function commitFunding() private{
         require(
             now > mini_crowdfunding_expiry,
             "Crowdfunding hasn't ended yet"
@@ -101,6 +116,93 @@ contract miniCrowdfunding is mortal{
             }
         }
         return true;
+    }
+
+
+    function claimMerch() public returns (bool) {
+        require(now > mini_crowdfunding_expiry,
+            "Crowdfunding still going on.");
+        require(current_investment >= investment_goal,
+            "The crowfunding was canceled");
+        require(
+            !has_claimed_merch[msg.sender],
+            "You already claimed you merch"
+        );
+        uint256 money_invested = balances[msg.sender];
+
+        require(
+            money_invested > 0,
+            "You did not invest in this project"
+        );
+        string memory obtained_merch;
+        //For all investors
+        for (uint i=0; i<(tiers.length - 1); i++) {
+            if(money_invested > tiers[i].lower_bound && money_invested <= tiers[i].upper_bound){
+                obtained_merch = tiers[i].merch_reward;
+            }
+        }
+        if(money_invested > tiers[tiers.length - 1].lower_bound)
+            obtained_merch = tiers[tiers.length - 1].merch_reward;
+
+        require(
+            !compareStrings(obtained_merch, "no merch"),
+            "Your tier doesn't grant you access to any merch"
+        );
+
+        has_claimed_merch[msg.sender] = true;
+        sendMerchToken(obtained_merch, msg.sender);
+    }
+
+    function claimMerchPatron() public {
+        require(now > mini_crowdfunding_expiry,
+            "Crowdfunding still going on.");
+        require(current_investment >= investment_goal,
+            "The crowfunding was canceled");
+        require(
+            !has_claimed_patron_merch[msg.sender],
+            "You already claimed this reward"
+        );
+        //Check if sender is grand patron
+        bool is_patron = false;
+        for(uint256 i = 0; i<grand_patrons.length; i++){
+            if(grand_patrons[i] == msg.sender){
+                is_patron = true;
+            }
+        }
+        require(is_patron, "You must be a grand patron to claim this reward");
+
+        //Check if patron has invested enought to claim reward
+        uint256 investmnent = balances[msg.sender];
+        require(
+            investmnent > patrons_tier.lower_bound,
+            "You did not invest enought to claim the patron reward"
+        );
+        //Set has_claimed_patron_merch to true
+        has_claimed_patron_merch[msg.sender] = true;
+        sendMerchToken(patrons_tier.merch_reward, msg.sender);
+    }
+
+    function compareStrings(string memory a, string memory b) public view
+    returns (bool) {
+        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))) );
+    }
+
+    function sendMerchToken(string memory obtained_merch, address investor_address) private {
+        Merch memory merch = Merch(obtained_merch, "test_token");
+        claimed_merch.push(merch);
+        bytes32 merch_token = keccak256(abi.encodePacked(now, investor_address));
+        emit merchClaimed(investor_address, merch_token);
+    }
+
+
+    function closeFunding() public{
+        require(now > mini_crowdfunding_expiry,
+            "Crowdfunding still going on.");
+        if(current_investment >=  investment_goal){
+            commitFunding();
+        }
+        else
+            emit abortFunding(current_investment);
     }
 
 }
