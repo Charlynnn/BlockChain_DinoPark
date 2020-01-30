@@ -69,6 +69,19 @@ contract crowdfunding is mortal {
         if(current_investment >= investment_goal)
             emit GoalReached(current_investment);
     }
+    
+    function closeFunding() public{
+        require(now > crowdfunding_expiry,
+                "Crowdfunding still going on.");
+        if(current_investment >=  investment_goal){
+            if(commitFunding()){
+                earnings_goal1 = current_investment*2;
+                earnings_goal2 = current_investment*3;
+            } else return;
+        } else
+            emit abortFunding(current_investment);
+        fundingClosed = true;
+    }
 
     function commitFunding() public returns (bool){
         /*Test :
@@ -141,19 +154,6 @@ contract crowdfunding is mortal {
         }
         
         emit BuyTicket(client_address, money_sent, tickets_to_send);
-    }
-
-    function closeFunding() public{
-        require(now > crowdfunding_expiry,
-                "Crowdfunding still going on.");
-        if(current_investment >=  investment_goal){
-            if(commitFunding()){
-                earnings_goal1 = current_investment*2;
-                earnings_goal2 = current_investment*3;
-            } else return;
-        } else
-            emit abortFunding(current_investment);
-        fundingClosed = true;
     }
     
     function claimTicketReward() public{
