@@ -11,7 +11,6 @@ contract miniCrowdfunding is mortal{
     struct Tier {
         uint256 lower_bound;
         uint256 upper_bound;
-        uint256 interest_rate;
         string merch_reward;
     }
     struct Merch {
@@ -35,7 +34,7 @@ contract miniCrowdfunding is mortal{
     mapping(address => bool) has_claimed_patron_merch;
 
     Tier[] public tiers;
-    Tier public  patrons_tier = Tier(5, 1, 0, "super exclusive figure");
+    Tier public  patrons_tier = Tier(5, 1, "super exclusive figure");
 
     //Events
 
@@ -51,9 +50,9 @@ contract miniCrowdfunding is mortal{
         grand_patrons = patrons;
         mini_crowdfunding_name = name;
         investment_goal = goal;
-        tiers.push(Tier(1, 10, 105,"no merch"));
-        tiers.push(Tier(11, 25, 110,"no merch"));
-        tiers.push(Tier(26, 1000000, 120, "exclusive keychain"));
+        tiers.push(Tier(1, 25,"Very cool Dino sticker"));
+        tiers.push(Tier(26, 30, "exclusive Dino keychain"));
+        tiers.push(Tier(31, 100000, "Super exclusive Dino cookie box"));
 
         pay_back_date = now + pay_back_duration;
         mini_crowdfunding_expiry = now + mini_crowdfunding_duration;
@@ -144,11 +143,6 @@ contract miniCrowdfunding is mortal{
         if(money_invested > tiers[tiers.length - 1].lower_bound)
             obtained_merch = tiers[tiers.length - 1].merch_reward;
 
-        require(
-            !compareStrings(obtained_merch, "no merch"),
-            "Your tier doesn't grant you access to any merch"
-        );
-
         has_claimed_merch[msg.sender] = true;
         sendMerchToken(obtained_merch, msg.sender);
     }
@@ -180,11 +174,6 @@ contract miniCrowdfunding is mortal{
         //Set has_claimed_patron_merch to true
         has_claimed_patron_merch[msg.sender] = true;
         sendMerchToken(patrons_tier.merch_reward, msg.sender);
-    }
-
-    function compareStrings(string memory a, string memory b) public view
-    returns (bool) {
-        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))) );
     }
 
     function sendMerchToken(string memory obtained_merch, address investor_address) private {
