@@ -38,6 +38,7 @@ contract crowdfunding is mortal {
     
     mapping (address => uint) public balances;
     mapping (bytes32 => address) tickets;
+    mapping(address => bool) gifted_tickets;
     
     event EthReceived(address payable from, uint256 amount);
     event BuyTicket(address payable from, uint256 price, bytes32[] tickets_bought);
@@ -171,6 +172,30 @@ contract crowdfunding is mortal {
         fundingClosed = true;
     }
     
+    function claimTicketReward() public{
+        address claimer = msg.sender;
+        uint256 money_invested = balances[claimer];
+        require(now > crowdfunding_expiry,
+               "Crowdfunding still going on.");
+        require(money_invested != 0,
+                "You have not invested in this project, so you can't claim a free entrance ticket.");
+        require(fundingClosed,
+                "The park is now being built. Please wait for further announcements to try again.");
+        require(current_earnings >= earnings_goal1,
+                "We have not earned enough money to give away the tickets yet.");
+        require(gifted_tickets[claimer] == false,
+                "You have already received your free entrance ticket.");
+                
+        bytes32[] memory tickets_to_send = new bytes32[](1);
+        bytes32 token = keccak256(abi.encodePacked(now,claimer));
+        tickets_to_send[0]= (token);
+        gifted_tickets[claimer] = true;
+        tickets[token] = msg.sender;
+        
+        
+        emit BuyTicket(msg.sender, 0, tickets_to_send);
+    }
+    
     function claimPayBackWithInterests() public returns (bool) {
         
         address payable investor_address = msg.sender;
@@ -181,7 +206,7 @@ contract crowdfunding is mortal {
                "Crowdfunding still going on.");
         require(fundingClosed,
                 "The park is now being built. Please wait for further announcements to try again.");
-        require(current_earnings > earnings_goal2,
+        require(current_earnings >= earnings_goal2,
                 "We have not earned enough money to pay back yet.");
         require(money_invested != 0,
                 "You have not invested in this project or already have been paid back.");
