@@ -24,8 +24,6 @@ contract miniCrowdfunding is mortal{
     uint256 public current_investment;
     uint mini_crowdfunding_duration =  1 minutes;
     uint public mini_crowdfunding_expiry;
-    uint  pay_back_duration = 2 minutes;
-    uint public pay_back_date;
 
     mapping (address => uint) public balances;
     Merch[] claimed_merch;
@@ -54,7 +52,6 @@ contract miniCrowdfunding is mortal{
         tiers.push(Tier(26, 30, "exclusive Dino keychain"));
         tiers.push(Tier(31, 100000, "Super exclusive Dino cookie box"));
 
-        pay_back_date = now + pay_back_duration;
         mini_crowdfunding_expiry = now + mini_crowdfunding_duration;
     }
 
