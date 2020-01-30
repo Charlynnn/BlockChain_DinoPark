@@ -171,6 +171,8 @@ contract crowdfunding is mortal {
                 "The park is now being built. Please wait for further announcements to try again.");
         require(current_earnings > earnings_goal2,
                 "We have not earned enough money to pay back yet.");
+        require(money_invested = balances[investor_address] != 0,
+                "You have not invested in this project or already have been paid back.")
                 
         address payable investor_address = msg.sender;
         //uint256 eth_received = msg.value;
