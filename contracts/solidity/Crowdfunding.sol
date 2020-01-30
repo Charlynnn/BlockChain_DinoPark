@@ -37,10 +37,11 @@ contract crowdfunding is mortal {
     Tier[] tiers;
     
     mapping (address => uint) public balances;
-    mapping (address => Ticket) tickets;
+    mapping (bytes32 => address) tickets;
+    mapping(address => bool) gifted_tickets;
     
     event EthReceived(address payable from, uint256 amount);
-    event BuyTicket(address payable from, uint256 price);
+    event BuyTicket(address payable from, uint256 price, bytes32[] tickets_bought);
     event ProjectFunded(uint256 total_money_received);
     event GoalReached(uint256 total_money_received);
     event ExpiredDate();
@@ -125,29 +126,37 @@ contract crowdfunding is mortal {
     }
 
     function buyTicket(uint number_ticket)  public payable {
+        //require park opened / funding closed
+        require(
+            now > crowdfunding_expiry,
+            "Crowdfunding still going on, please wait before buying ticket."
+        );
+        require(fundingClosed,
+            "We are treating crowdfunding results, please try again later.");
         require(
             current_investment >= investment_goal,
-            "The project is not completely crowdfunding yet, please wait before buying ticket"
+            "We are very sorry to announce that the investment goal has not been reached in time, the project is aborted."
         );
-
+        
         address payable client_address = msg.sender;
-        uint256 eth_ticket = msg.value;
+        uint256 money_sent = msg.value;
 
         require(
-            eth_ticket == number_ticket*ticket_price,
+            money_sent == number_ticket*ticket_price,
             "Error : You must send the correct price, you have to pay 1 ether by ticket");
 
-        current_earnings += eth_ticket;
-        Client memory client = Client(client_address, eth_ticket);
+        current_earnings += money_sent;
+        Client memory client = Client(client_address, money_sent);
         clients.push(client);
-
-        Ticket memory ticket = Ticket(eth_ticket, "testToken");
-        tickets[client_address] = ticket;
-
-        //if(!client_address.call(bytes4(bytes32(sha3("buyTicket(address,uint256,address,bytes)"))), client_address, _value, this, _extraData)) { throw; }
-        //return true;
-
-        emit BuyTicket(client_address, eth_ticket);
+        
+        bytes32[] memory tickets_to_send = new bytes32[](number_ticket);
+        for (uint i=0; i<number_ticket; i++) {
+            bytes32 token = keccak256(abi.encodePacked(now,msg.sender));
+            tickets_to_send[i]= (token);
+            tickets[token] = msg.sender;
+        }
+        
+        emit BuyTicket(client_address, money_sent, tickets_to_send);
     }
 
     function closeFunding() public{
@@ -163,18 +172,45 @@ contract crowdfunding is mortal {
         fundingClosed = true;
     }
     
+    function claimTicketReward() public{
+        address claimer = msg.sender;
+        uint256 money_invested = balances[claimer];
+        require(now > crowdfunding_expiry,
+               "Crowdfunding still going on.");
+        require(money_invested != 0,
+                "You have not invested in this project, so you can't claim a free entrance ticket.");
+        require(fundingClosed,
+                "The park is now being built. Please wait for further announcements to try again.");
+        require(current_earnings >= earnings_goal1,
+                "We have not earned enough money to give away the tickets yet.");
+        require(gifted_tickets[claimer] == false,
+                "You have already received your free entrance ticket.");
+                
+        bytes32[] memory tickets_to_send = new bytes32[](1);
+        bytes32 token = keccak256(abi.encodePacked(now,claimer));
+        tickets_to_send[0]= (token);
+        gifted_tickets[claimer] = true;
+        tickets[token] = msg.sender;
+        
+        
+        emit BuyTicket(msg.sender, 0, tickets_to_send);
+    }
+    
     function claimPayBackWithInterests() public returns (bool) {
+        
+        address payable investor_address = msg.sender;
+        //uint256 eth_received = msg.value;
+        uint256 money_invested = balances[investor_address];
         
         require(now > crowdfunding_expiry,
                "Crowdfunding still going on.");
         require(fundingClosed,
                 "The park is now being built. Please wait for further announcements to try again.");
-        require(current_earnings > earnings_goal2,
+        require(current_earnings >= earnings_goal2,
                 "We have not earned enough money to pay back yet.");
+        require(money_invested != 0,
+                "You have not invested in this project or already have been paid back.");
                 
-        address payable investor_address = msg.sender;
-        //uint256 eth_received = msg.value;
-        uint256 money_invested = balances[investor_address];
         uint256 interest_rate = 0;
         uint256 money_to_payback = 0;
         for (uint i=0; i<(tiers.length - 1); i++) {
