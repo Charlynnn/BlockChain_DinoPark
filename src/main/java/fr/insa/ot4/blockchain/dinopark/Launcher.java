@@ -18,18 +18,9 @@ public class Launcher {
         DinoParkDeployer deployer = new DinoParkDeployer();
         Crowdfunding crowndfunding = deployer.transferContract();
 
-        System.out.println("Contract transmitted to blockchain -> Crowndfunding is alive and ready for interaction.");
+        System.out.println("Contract transmitted to blockchain -> Crowdfunding ready for interaction.");
 
-        // Block program until enter key was hit.
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("[Enter an investment to Crowndfunding]");
-        scanner.nextLine();
-
-        // Crowdfunding.ExpiredDate().watch({}, '', function(error, result) {
-        //     if (!error) {
-        //         console.log("oki ".");
-        //         console.log("");
-        //     }   
-        // })
+        // We did not use the Java Project 
+        // All our project was executed on the plateform Remix because of performance reasons
     }
 }
