@@ -44,10 +44,11 @@ contract miniCrowdfunding is mortal{
     event merchClaimed(address investor_address, bytes32 merch_token);
 
 
-    constructor(address[] memory patrons, string memory name, uint256 goal) public{
+    constructor(address[] memory patrons, string memory name, ether goal, minutes limit_time) public{
         grand_patrons = patrons;
         mini_crowdfunding_name = name;
         investment_goal = goal;
+        mini_crowdfunding_duration = limit_time;
         tiers.push(Tier(1, 25,"Very cool Dino sticker"));
         tiers.push(Tier(26, 30, "exclusive Dino keychain"));
         tiers.push(Tier(31, 100000, "Super exclusive Dino cookie box"));
