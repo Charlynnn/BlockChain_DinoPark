@@ -209,11 +209,14 @@ contract crowdfunding is mortal {
             
             money_to_payback = money_invested * interest_rate;
             money_to_payback = money_to_payback/100;
-            if(investor_address.send(money_to_payback)) return true;
+            if(investor_address.send(money_to_payback)){
+                balances[investor_address] = 0;
+                return true;
+            } 
             
         }
-        else 
-            return false;
+         
+        return false;
     }
 }
 
