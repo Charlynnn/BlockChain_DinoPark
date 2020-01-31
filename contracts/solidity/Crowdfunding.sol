@@ -67,6 +67,8 @@ contract crowdfunding is mortal {
     }
     
     function closeFunding() public{
+        require(msg.sender == owner,
+                "You are not the owner of the crowdfunding, you cannot access this functionality.");
         require(now > crowdfunding_expiry,
                 "Crowdfunding still going on.");
         if(current_investment >=  investment_goal){

@@ -56,6 +56,8 @@ contract miniCrowdfunding is mortal{
     }
 
     function invest()  public payable {
+        require(msg.sender == owner,
+            "You are not the owner of the crowdfunding, you cannot access this functionality.");
         require(
             now <= mini_crowdfunding_expiry,
             "Crowdfunding already ended."
