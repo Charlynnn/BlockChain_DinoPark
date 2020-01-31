@@ -44,7 +44,7 @@ contract miniCrowdfunding is mortal{
     event merchClaimed(address investor_address, bytes32 merch_token);
 
 
-    constructor(address[] memory patrons, string memory name, ether goal, minutes limit_time) public{
+    constructor(address[] memory patrons, string memory name, uint256 goal, uint256 limit_time) public{
         grand_patrons = patrons;
         mini_crowdfunding_name = name;
         investment_goal = goal;
