@@ -20,7 +20,7 @@ contract crowdfunding is mortal {
     uint256 ticket_price = 1 ether;
     uint256 current_earnings = 0;
     uint256 earnings_goal1;
-    uint256 earnings_goal2 = 10;
+    uint256 earnings_goal2;
     
     Tier[] tiers;
     
@@ -51,10 +51,6 @@ contract crowdfunding is mortal {
             "Crowdfunding already ended."
         );
         require(
-            current_investment < investment_goal,
-            "Goal already reached."
-        );
-        require(
             msg.value > 0,
             "You must invest more than 0."
         );
@@ -83,7 +79,7 @@ contract crowdfunding is mortal {
         fundingClosed = true;
     }
 
-    function commitFunding() public returns (bool){
+    function commitFunding() private returns (bool){
         /*Test :
         Fails on goal not reached : OK
         Fails on expiry date not reached : OK
@@ -212,7 +208,9 @@ contract crowdfunding is mortal {
             if(investor_address.send(money_to_payback)){
                 balances[investor_address] = 0;
                 return true;
-            } 
+            } else {
+                return false;
+            }
             
         }
          

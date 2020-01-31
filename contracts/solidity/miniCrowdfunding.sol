@@ -61,10 +61,6 @@ contract miniCrowdfunding is mortal{
             "Crowdfunding already ended."
         );
         require(
-            current_investment < investment_goal,
-            "Goal already reached."
-        );
-        require(
             msg.value > 0,
             "you must invest more than 0 !"
         );
@@ -119,16 +115,16 @@ contract miniCrowdfunding is mortal{
         require(now > mini_crowdfunding_expiry,
             "Crowdfunding still going on.");
         require(current_investment >= investment_goal,
-            "The crowfunding was canceled");
+            "The crowdfunding was cancelled.");
         require(
             !has_claimed_merch[msg.sender],
-            "You already claimed you merch"
+            "You already claimed you merch."
         );
         uint256 money_invested = balances[msg.sender];
 
         require(
             money_invested > 0,
-            "You did not invest in this project"
+            "You did not invest in this project."
         );
         string memory obtained_merch;
         //For all investors
@@ -148,10 +144,10 @@ contract miniCrowdfunding is mortal{
         require(now > mini_crowdfunding_expiry,
             "Crowdfunding still going on.");
         require(current_investment >= investment_goal,
-            "The crowfunding was canceled");
+            "The crowfunding was canceled.");
         require(
             !has_claimed_patron_merch[msg.sender],
-            "You already claimed this reward"
+            "You already claimed this reward."
         );
         //Check if sender is grand patron
         bool is_patron = false;
@@ -160,13 +156,13 @@ contract miniCrowdfunding is mortal{
                 is_patron = true;
             }
         }
-        require(is_patron, "You must be a grand patron to claim this reward");
+        require(is_patron, "You must be a grand patron to claim this reward.");
 
         //Check if patron has invested enought to claim reward
         uint256 investmnent = balances[msg.sender];
         require(
             investmnent > patrons_tier.lower_bound,
-            "You did not invest enought to claim the patron reward"
+            "You did not invest enought to claim the patron reward."
         );
         //Set has_claimed_patron_merch to true
         has_claimed_patron_merch[msg.sender] = true;
@@ -174,9 +170,9 @@ contract miniCrowdfunding is mortal{
     }
 
     function sendMerchToken(string memory obtained_merch, address investor_address) private {
-        Merch memory merch = Merch(obtained_merch, "test_token");
-        claimed_merch.push(merch);
         bytes32 merch_token = keccak256(abi.encodePacked(now, investor_address));
+        Merch memory merch = Merch(obtained_merch, merch_token);
+        claimed_merch.push(merch);
         emit merchClaimed(investor_address, merch_token);
     }
 
