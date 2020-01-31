@@ -79,6 +79,16 @@ contract miniCrowdfunding is mortal{
             emit GoalReached(current_investment);
     }
 
+    function closeFunding() public{
+        require(now > mini_crowdfunding_expiry,
+            "Crowdfunding still going on.");
+        if(current_investment >=  investment_goal){
+            commitFunding();
+        }
+        else
+            emit abortFunding(current_investment);
+    }
+
     function commitFunding() private{
         require(
             now > mini_crowdfunding_expiry,
@@ -177,17 +187,6 @@ contract miniCrowdfunding is mortal{
         Merch memory merch = Merch(obtained_merch, merch_token);
         claimed_merch.push(merch);
         emit merchClaimed(investor_address, merch_token);
-    }
-
-
-    function closeFunding() public{
-        require(now > mini_crowdfunding_expiry,
-            "Crowdfunding still going on.");
-        if(current_investment >=  investment_goal){
-            commitFunding();
-        }
-        else
-            emit abortFunding(current_investment);
     }
 
 }
