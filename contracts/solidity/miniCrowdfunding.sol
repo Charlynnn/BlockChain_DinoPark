@@ -115,7 +115,7 @@ contract miniCrowdfunding is mortal{
     }
 
 
-    function claimMerch() public returns (bool) {
+    function claimMerch() public {
         require(now > mini_crowdfunding_expiry,
             "Crowdfunding still going on.");
         require(current_investment >= investment_goal,
