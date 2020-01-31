@@ -200,7 +200,7 @@ contract crowdfunding is mortal {
         }
         if(money_invested > tiers[tiers.length - 1].lower_bound)
             interest_rate = tiers[tiers.length - 1].interest_rate;
-        
+
         if(interest_rate != 0){
             
             money_to_payback = money_invested * interest_rate;

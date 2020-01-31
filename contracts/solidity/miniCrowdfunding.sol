@@ -15,7 +15,7 @@ contract miniCrowdfunding is mortal{
     }
     struct Merch {
         string name;
-        string token;
+        bytes32 token;
     }
 
     address[] grand_patrons;
@@ -31,8 +31,8 @@ contract miniCrowdfunding is mortal{
     mapping(address => bool) has_claimed_merch;
     mapping(address => bool) has_claimed_patron_merch;
 
-    Tier[] public tiers;
-    Tier public  patrons_tier = Tier(5, 1, "super exclusive figure");
+    Tier[] private tiers;
+    Tier public  patrons_tier = Tier(1, 5, "super exclusive figure");
 
     //Events
 
